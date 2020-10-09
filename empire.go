@@ -21,7 +21,11 @@ var (
 	ErrDomainInUse        = errors.New("Domain currently in use by another app.")
 	ErrDomainAlreadyAdded = errors.New("Domain already added to this app.")
 	ErrDomainNotFound     = errors.New("Domain could not be found.")
-	ErrUserName           = errors.New("Name is required")
+	ErrUserExists         = errors.New("User already exists")
+	ErrUserName           = errors.New("Username is required")
+	ErrUserNotFound       = errors.New("User not be found")
+	ErrUserPassword       = errors.New("User password could not be hashed")
+	ErrPasswordInvalid    = errors.New("User password invalid")
 	ErrNoReleases         = errors.New("no releases")
 	// ErrInvalidName is used to indicate that the app name is not valid.
 	ErrInvalidName = &ValidationError{
@@ -129,6 +133,31 @@ func New(db *DB) *Empire {
 	e.releases = &releasesService{Empire: e}
 	e.certs = &certsService{Empire: e}
 	return e
+}
+
+// UserAuth authenticates the given username/password from the database
+func (e *Empire) UserAuth(username string, password string) error {
+	return userAuth(e.db, username, password)
+}
+
+// CreateUser creates the given user with the password in the database
+func (e *Empire) CreateUser(username string, password string) error {
+	return userCreate(e.db, username, password)
+}
+
+// ChangeUserPassword creates the given user with the password in the database
+func (e *Empire) ChangeUserPassword(username string, password string) error {
+	return userChangePassword(e.db, username, password)
+}
+
+// CreateUser creates the given user with the password in the database
+func (e *Empire) DeleteUser(username string) error {
+	user, err := userFind(e.db, username)
+	if err != nil {
+		return err
+	}
+
+	return userDelete(e.db, user)
 }
 
 // AppsFind finds the first app matching the query.

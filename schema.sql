@@ -2,17 +2,26 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.1
--- Dumped by pg_dump version 9.6.1
+-- Dumped from database version 9.6.19
+-- Dumped by pg_dump version 9.6.19
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: DATABASE postgres; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON DATABASE postgres IS 'default administrative connection database';
+
 
 --
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
@@ -56,8 +65,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
 
 
-SET search_path = public, pg_catalog;
-
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -66,8 +73,8 @@ SET default_with_oids = false;
 -- Name: apps; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE apps (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+CREATE TABLE public.apps (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name character varying(30) NOT NULL,
     created_at timestamp without time zone DEFAULT timezone('utc'::text, now()),
     repo text,
@@ -82,8 +89,8 @@ CREATE TABLE apps (
 -- Name: certificates; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE certificates (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+CREATE TABLE public.certificates (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     app_id uuid NOT NULL,
     name text,
     certificate_chain text,
@@ -96,10 +103,10 @@ CREATE TABLE certificates (
 -- Name: configs; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE configs (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+CREATE TABLE public.configs (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     app_id uuid NOT NULL,
-    vars hstore,
+    vars public.hstore,
     created_at timestamp without time zone DEFAULT timezone('utc'::text, now())
 );
 
@@ -108,8 +115,8 @@ CREATE TABLE configs (
 -- Name: domains; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE domains (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+CREATE TABLE public.domains (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     app_id uuid NOT NULL,
     hostname text NOT NULL,
     created_at timestamp without time zone DEFAULT timezone('utc'::text, now())
@@ -120,8 +127,8 @@ CREATE TABLE domains (
 -- Name: ecs_environment; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE ecs_environment (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+CREATE TABLE public.ecs_environment (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     environment json NOT NULL
 );
 
@@ -130,8 +137,8 @@ CREATE TABLE ecs_environment (
 -- Name: ports; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE ports (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+CREATE TABLE public.ports (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     port integer,
     app_id uuid,
     taken text
@@ -142,8 +149,8 @@ CREATE TABLE ports (
 -- Name: releases; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE releases (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+CREATE TABLE public.releases (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     app_id uuid NOT NULL,
     config_id uuid NOT NULL,
     slug_id uuid NOT NULL,
@@ -158,7 +165,7 @@ CREATE TABLE releases (
 -- Name: scheduler_migration; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE scheduler_migration (
+CREATE TABLE public.scheduler_migration (
     app_id text NOT NULL,
     backend text NOT NULL
 );
@@ -168,7 +175,7 @@ CREATE TABLE scheduler_migration (
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE schema_migrations (
+CREATE TABLE public.schema_migrations (
     version integer NOT NULL
 );
 
@@ -177,8 +184,8 @@ CREATE TABLE schema_migrations (
 -- Name: slugs; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE slugs (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+CREATE TABLE public.slugs (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     image text NOT NULL,
     procfile bytea NOT NULL
 );
@@ -188,9 +195,23 @@ CREATE TABLE slugs (
 -- Name: stacks; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE stacks (
+CREATE TABLE public.stacks (
     app_id text NOT NULL,
     stack_name text NOT NULL
+);
+
+
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.users (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    username text NOT NULL,
+    password text NOT NULL,
+    created_at timestamp without time zone DEFAULT timezone('utc'::text, now()),
+    updated_at timestamp without time zone DEFAULT timezone('utc'::text, now()),
+    deleted_at timestamp without time zone
 );
 
 
@@ -198,7 +219,7 @@ CREATE TABLE stacks (
 -- Name: apps apps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY apps
+ALTER TABLE ONLY public.apps
     ADD CONSTRAINT apps_pkey PRIMARY KEY (id);
 
 
@@ -206,7 +227,7 @@ ALTER TABLE ONLY apps
 -- Name: certificates certificates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY certificates
+ALTER TABLE ONLY public.certificates
     ADD CONSTRAINT certificates_pkey PRIMARY KEY (id);
 
 
@@ -214,7 +235,7 @@ ALTER TABLE ONLY certificates
 -- Name: configs configs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY configs
+ALTER TABLE ONLY public.configs
     ADD CONSTRAINT configs_pkey PRIMARY KEY (id);
 
 
@@ -222,7 +243,7 @@ ALTER TABLE ONLY configs
 -- Name: domains domains_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY domains
+ALTER TABLE ONLY public.domains
     ADD CONSTRAINT domains_pkey PRIMARY KEY (id);
 
 
@@ -230,7 +251,7 @@ ALTER TABLE ONLY domains
 -- Name: ecs_environment ecs_environment_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY ecs_environment
+ALTER TABLE ONLY public.ecs_environment
     ADD CONSTRAINT ecs_environment_pkey PRIMARY KEY (id);
 
 
@@ -238,7 +259,7 @@ ALTER TABLE ONLY ecs_environment
 -- Name: ports ports_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY ports
+ALTER TABLE ONLY public.ports
     ADD CONSTRAINT ports_pkey PRIMARY KEY (id);
 
 
@@ -246,7 +267,7 @@ ALTER TABLE ONLY ports
 -- Name: releases releases_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY releases
+ALTER TABLE ONLY public.releases
     ADD CONSTRAINT releases_pkey PRIMARY KEY (id);
 
 
@@ -254,7 +275,7 @@ ALTER TABLE ONLY releases
 -- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY schema_migrations
+ALTER TABLE ONLY public.schema_migrations
     ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
 
 
@@ -262,120 +283,135 @@ ALTER TABLE ONLY schema_migrations
 -- Name: slugs slugs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY slugs
+ALTER TABLE ONLY public.slugs
     ADD CONSTRAINT slugs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
 
 
 --
 -- Name: index_certificates_on_app_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_certificates_on_app_id ON certificates USING btree (app_id);
+CREATE UNIQUE INDEX index_certificates_on_app_id ON public.certificates USING btree (app_id);
 
 
 --
 -- Name: index_configs_on_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_configs_on_created_at ON configs USING btree (created_at);
+CREATE INDEX index_configs_on_created_at ON public.configs USING btree (created_at);
 
 
 --
 -- Name: index_domains_on_app_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_domains_on_app_id ON domains USING btree (app_id);
+CREATE INDEX index_domains_on_app_id ON public.domains USING btree (app_id);
 
 
 --
 -- Name: index_domains_on_hostname; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_domains_on_hostname ON domains USING btree (hostname);
+CREATE UNIQUE INDEX index_domains_on_hostname ON public.domains USING btree (hostname);
+
+
+--
+-- Name: index_on_username; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_on_username ON public.users USING btree (username);
 
 
 --
 -- Name: index_releases_on_app_id_and_version; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_releases_on_app_id_and_version ON releases USING btree (app_id, version);
+CREATE UNIQUE INDEX index_releases_on_app_id_and_version ON public.releases USING btree (app_id, version);
 
 
 --
 -- Name: index_stacks_on_app_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_stacks_on_app_id ON stacks USING btree (app_id);
+CREATE UNIQUE INDEX index_stacks_on_app_id ON public.stacks USING btree (app_id);
 
 
 --
 -- Name: index_stacks_on_stack_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_stacks_on_stack_name ON stacks USING btree (stack_name);
+CREATE UNIQUE INDEX index_stacks_on_stack_name ON public.stacks USING btree (stack_name);
 
 
 --
 -- Name: unique_app_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX unique_app_name ON apps USING btree (name) WHERE (deleted_at IS NULL);
+CREATE UNIQUE INDEX unique_app_name ON public.apps USING btree (name) WHERE (deleted_at IS NULL);
 
 
 --
 -- Name: certificates certificates_app_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY certificates
-    ADD CONSTRAINT certificates_app_id_fkey FOREIGN KEY (app_id) REFERENCES apps(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.certificates
+    ADD CONSTRAINT certificates_app_id_fkey FOREIGN KEY (app_id) REFERENCES public.apps(id) ON DELETE CASCADE;
 
 
 --
 -- Name: configs configs_app_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY configs
-    ADD CONSTRAINT configs_app_id_fkey FOREIGN KEY (app_id) REFERENCES apps(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.configs
+    ADD CONSTRAINT configs_app_id_fkey FOREIGN KEY (app_id) REFERENCES public.apps(id) ON DELETE CASCADE;
 
 
 --
 -- Name: domains domains_app_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY domains
-    ADD CONSTRAINT domains_app_id_fkey FOREIGN KEY (app_id) REFERENCES apps(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.domains
+    ADD CONSTRAINT domains_app_id_fkey FOREIGN KEY (app_id) REFERENCES public.apps(id) ON DELETE CASCADE;
 
 
 --
 -- Name: ports ports_app_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY ports
-    ADD CONSTRAINT ports_app_id_fkey FOREIGN KEY (app_id) REFERENCES apps(id) ON DELETE SET NULL;
+ALTER TABLE ONLY public.ports
+    ADD CONSTRAINT ports_app_id_fkey FOREIGN KEY (app_id) REFERENCES public.apps(id) ON DELETE SET NULL;
 
 
 --
 -- Name: releases releases_app_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY releases
-    ADD CONSTRAINT releases_app_id_fkey FOREIGN KEY (app_id) REFERENCES apps(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.releases
+    ADD CONSTRAINT releases_app_id_fkey FOREIGN KEY (app_id) REFERENCES public.apps(id) ON DELETE CASCADE;
 
 
 --
 -- Name: releases releases_config_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY releases
-    ADD CONSTRAINT releases_config_id_fkey FOREIGN KEY (config_id) REFERENCES configs(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.releases
+    ADD CONSTRAINT releases_config_id_fkey FOREIGN KEY (config_id) REFERENCES public.configs(id) ON DELETE CASCADE;
 
 
 --
 -- Name: releases releases_slug_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY releases
-    ADD CONSTRAINT releases_slug_id_fkey FOREIGN KEY (slug_id) REFERENCES slugs(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.releases
+    ADD CONSTRAINT releases_slug_id_fkey FOREIGN KEY (slug_id) REFERENCES public.slugs(id) ON DELETE CASCADE;
 
 
 --

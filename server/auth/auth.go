@@ -202,6 +202,17 @@ func StaticAuthenticator(username, password, otp string, user *empire.User) Auth
 	})
 }
 
+// LocalAuthenticator returns an Authenticator that checks the database
+func LocalAuthenticator(e *empire.Empire) Authenticator {
+	return AuthenticatorFunc(func(username, password, otp string) (*Session, error) {
+		if e.UserAuth(username, password) != nil {
+			return NewSession(&empire.User{Name: username}), nil
+		}
+
+		return nil, ErrForbidden
+	})
+}
+
 // Anyone returns an Authenticator that let's anyone in and sets them as the
 // given user.
 func Anyone(user *empire.User) Authenticator {

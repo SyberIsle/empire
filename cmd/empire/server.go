@@ -8,7 +8,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/urfave/cli"
 	"github.com/remind101/conveyor/client/conveyor"
 	"github.com/remind101/empire"
 	"github.com/remind101/empire/internal/realip"
@@ -20,6 +19,7 @@ import (
 	"github.com/remind101/empire/server/heroku"
 	"github.com/remind101/empire/server/middleware"
 	"github.com/remind101/empire/stats"
+	"github.com/urfave/cli"
 	"golang.org/x/oauth2"
 )
 
@@ -150,7 +150,7 @@ func newAuth(c *Context, e *empire.Empire) *auth.Auth {
 		if c.String(FlagGithubClient) != "" {
 			authBackend = "github"
 		} else {
-			authBackend = "fake"
+			authBackend = "local"
 		}
 	}
 
@@ -169,6 +169,15 @@ func newAuth(c *Context, e *empire.Empire) *auth.Auth {
 	// authentication backend. Otherwise, we'll just use a static username
 	// and password backend.
 	switch authBackend {
+	case "local":
+		return &auth.Auth{
+			Strategies: auth.Strategies{
+				{
+					Name:          auth.StrategyUsernamePassword,
+					Authenticator: withSessionExpiration(auth.LocalAuthenticator(e)),
+				},
+			},
+		}
 	case "fake":
 		log.Println("Using static authentication backend")
 		// Fake authentication password where the user is "fake" and

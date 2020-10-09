@@ -915,6 +915,10 @@
 			"revisionTime": "2017-11-04T02:35:40Z"
 		},
 		{
+			"path": "golang.org/x/net/crypto",
+			"revision": "7f63de1d35b0f77fa2b9faea3e7deb402a2383c8"
+		},
+		{
 			"path": "golang.org/x/net/context",
 			"revision": "1dfe7915deaf3f80b962c163b918868d8a6d8974"
 		},

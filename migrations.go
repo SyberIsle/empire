@@ -695,4 +695,24 @@ ALTER TABLE apps ADD COLUMN exposure TEXT NOT NULL default 'private'`,
 			`ALTER TABLE apps DROP COLUMN deleted_at`,
 		}),
 	},
+
+	// Adds a table to support local user authentication
+	{
+		ID: 22,
+		Up: migrate.Queries([]string{
+			`CREATE TABLE users (
+  id uuid NOT NULL DEFAULT uuid_generate_v4() primary key,
+  username text NOT NULL,
+  password text NOT NULL,
+  created_at timestamp without time zone default (now() at time zone 'utc'),
+  updated_at timestamp without time zone default (now() at time zone 'utc'),
+  deleted_at timestamp without time zone
+)`,
+			`CREATE INDEX index_on_username ON users USING btree (username)`,
+			`INSERT INTO users (username, password) VALUES ('empire', '$2a$10$rtTg3KygBU5v8svsxscAv.6AYEJWTyiv8urQL6vl9PW6VO4T9fsZi')`,
+		}),
+		Down: migrate.Queries([]string{
+			`DROP TABLE users`,
+		}),
+	},
 }
