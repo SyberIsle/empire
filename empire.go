@@ -135,23 +135,32 @@ func New(db *DB) *Empire {
 	return e
 }
 
+func (e *Empire) Users() ([]*DbUser, error) {
+	return users(e.db)
+}
+
 // UserAuth authenticates the given username/password from the database
 func (e *Empire) UserAuth(username string, password string) error {
 	return userAuth(e.db, username, password)
 }
 
+// UserFind finds the user
+func (e *Empire) FindUser(username string) (*DbUser, error) {
+	return userFind(e.db, username)
+}
+
 // CreateUser creates the given user with the password in the database
-func (e *Empire) CreateUser(username string, password string) error {
+func (e *Empire) UserCreate(username string, password string) error {
 	return userCreate(e.db, username, password)
 }
 
 // ChangeUserPassword creates the given user with the password in the database
-func (e *Empire) ChangeUserPassword(username string, password string) error {
+func (e *Empire) UserPassword(username string, password string) error {
 	return userChangePassword(e.db, username, password)
 }
 
 // CreateUser creates the given user with the password in the database
-func (e *Empire) DeleteUser(username string) error {
+func (e *Empire) UserDelete(username string) error {
 	user, err := userFind(e.db, username)
 	if err != nil {
 		return err

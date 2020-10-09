@@ -60,31 +60,37 @@ func newDB(c *Context) (*empire.DB, error) {
 func newEmpire(db *empire.DB, c *Context) (*empire.Empire, error) {
 	docker, err := newDockerClient(c)
 	if err != nil {
+		log.Print("[init] Unable to connect to Docker")
 		return nil, err
 	}
 
 	scheduler, err := newScheduler(db, c)
 	if err != nil {
+		log.Print("[init] Unable to initialize Scheduler")
 		return nil, err
 	}
 
 	logs, err := newLogsStreamer(c)
 	if err != nil {
+		log.Print("[init] Unable to initialize logs")
 		return nil, err
 	}
 
 	streams, err := newEventStreams(c)
 	if err != nil {
+		log.Print("[init] Unable to initialize events")
 		return nil, err
 	}
 
 	runRecorder, err := newRunRecorder(c)
 	if err != nil {
+		log.Print("[init] Unable to initialize Recorder")
 		return nil, err
 	}
 
 	reg, err := newRegistry(docker, c)
 	if err != nil {
+		log.Print("[init] Unable to initialize registry")
 		return nil, err
 	}
 

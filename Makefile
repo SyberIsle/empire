@@ -22,6 +22,10 @@ bootstrap: cmds
 build: Dockerfile
 	docker build -t ${REPO} .
 
+push: build
+	docker tag remind101/empire:latest outsideopen/empire:master
+	docker push outsideopen/empire:master
+
 test: build/emp
 	go test -race $(shell go list ./... | grep -v /vendor/)
 	./tests/deps

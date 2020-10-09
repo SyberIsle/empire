@@ -206,10 +206,10 @@ func StaticAuthenticator(username, password, otp string, user *empire.User) Auth
 func LocalAuthenticator(e *empire.Empire) Authenticator {
 	return AuthenticatorFunc(func(username, password, otp string) (*Session, error) {
 		if e.UserAuth(username, password) != nil {
-			return NewSession(&empire.User{Name: username}), nil
+			return nil, ErrForbidden
 		}
 
-		return nil, ErrForbidden
+		return NewSession(&empire.User{Name: username}), nil
 	})
 }
 

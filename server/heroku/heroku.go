@@ -55,6 +55,13 @@ func New(e *empire.Empire) *Server {
 		mux:    mux.NewRouter(),
 	}
 
+	// Users
+	r.handle("GET", "/users", r.GetUsers)
+	r.handle("GET", "/users/{username}", r.GetUserInfo)
+	r.handle("DELETE", "/users/{username}", r.DeleteUser)
+	r.handle("PATCH", "/users/{username}", r.PatchUser)
+	r.handle("POST", "/users", r.PostUser)
+
 	// Apps
 	r.handle("GET", "/apps", r.GetApps)                  // hk apps
 	r.handle("GET", "/apps/{app}", r.GetAppInfo)         // hk info

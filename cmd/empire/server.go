@@ -40,11 +40,13 @@ func runServer(c *cli.Context) {
 
 	db, err := newDB(ctx)
 	if err != nil {
+		log.Fatal("Unable to connect to the database")
 		log.Fatal(err)
 	}
 
 	e, err := newEmpire(db, ctx)
 	if err != nil {
+		log.Fatal("Unable to build Empire")
 		log.Fatal(err)
 	}
 
@@ -154,6 +156,8 @@ func newAuth(c *Context, e *empire.Empire) *auth.Auth {
 		}
 	}
 
+	log.Printf("Auth Backend: %s", authBackend)
+
 	withSessionExpiration := func(a auth.Authenticator) auth.Authenticator {
 		exp := c.Duration(FlagServerSessionExpiration)
 
@@ -170,6 +174,7 @@ func newAuth(c *Context, e *empire.Empire) *auth.Auth {
 	// and password backend.
 	switch authBackend {
 	case "local":
+		log.Println("Using database authentication backend")
 		return &auth.Auth{
 			Strategies: auth.Strategies{
 				{

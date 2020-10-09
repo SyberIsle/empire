@@ -17,7 +17,7 @@ type User struct {
 	GitHubToken string `json:"-"`
 }
 
-type dbUser struct {
+type DbUser struct {
 	// A unique uuid that identifies the application
 	ID string
 
@@ -46,8 +46,16 @@ func (u *User) IsValid() error {
 	return nil
 }
 
+func users(db *gorm.DB) ([]*DbUser, error) {
+	var users []*DbUser
+
+	err := db.Model(&DbUser{}).Where("deleted_at IS NULL").Select("username, created_at, updated_at").Find(&users).Error
+
+	return users, err
+}
+
 // IsValid returns nil if the User is valid.
-func (u *dbUser) isValid() error {
+func (u *DbUser) isValid() error {
 	if u.Username == "" {
 		return ErrUserName
 	}
@@ -55,8 +63,8 @@ func (u *dbUser) isValid() error {
 	return nil
 }
 
-func userFind(db *gorm.DB, username string) (*dbUser, error) {
-	var user dbUser
+func userFind(db *gorm.DB, username string) (*DbUser, error) {
+	var user DbUser
 
 	return &user, db.First(&user, "username = ? and deleted_at IS NULL", &username).Error
 }
@@ -77,11 +85,11 @@ func userAuth(db *gorm.DB, username string, password string) error {
 	return nil
 }
 
-func (u *dbUser) TableName() string {
+func (u *DbUser) TableName() string {
 	return "users"
 }
 
-//func (u *dbUser) BeforeSave() error {
+//func (u *DbUser) BeforeSave() error {
 //	t := timex.Now()
 //	if u.CreatedAt == nil {
 //		u.CreatedAt = &t
@@ -94,14 +102,14 @@ func (u *dbUser) TableName() string {
 //	return u.isValid()
 //}
 
-func (u *dbUser) BeforeCreate() error {
+func (u *DbUser) BeforeCreate() error {
 	t := timex.Now()
 	u.CreatedAt = &t
 
 	return u.isValid()
 }
 
-func (u *dbUser) BeforeUpdate() error {
+func (u *DbUser) BeforeUpdate() error {
 	t := timex.Now()
 	u.UpdatedAt = &t
 
@@ -109,7 +117,7 @@ func (u *dbUser) BeforeUpdate() error {
 }
 
 // userUpdate updates the user
-func userUpdate(db *gorm.DB, user *dbUser) error {
+func userUpdate(db *gorm.DB, user *DbUser) error {
 	return db.Save(&user).Error
 }
 
@@ -126,7 +134,7 @@ func userCreate(db *gorm.DB, username string, password string) error {
 		return ErrUserPassword
 	}
 
-	user = &dbUser{
+	user = &DbUser{
 		Username: username,
 		Password: string(hashedPassword),
 	}
@@ -152,7 +160,7 @@ func userChangePassword(db *gorm.DB, username string, password string) error {
 	return userUpdate(db, user)
 }
 
-func userDelete(db *gorm.DB, user *dbUser) error {
+func userDelete(db *gorm.DB, user *DbUser) error {
 	t := timex.Now()
 	user.DeletedAt = &t
 
